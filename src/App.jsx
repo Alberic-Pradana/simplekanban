@@ -104,7 +104,7 @@ function App() {
   return (
     <div className="app-container" style={{ padding: '20px', minHeight: '100vh' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>Kanban Board</h1>
+        <h1>Simple Kanban</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={() => setIsModalOpen(true)}
