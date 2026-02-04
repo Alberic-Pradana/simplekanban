@@ -43,7 +43,7 @@ const ProjectSidebar = ({ projects, currentProject, onSelectProject, onAddProjec
                         style={{
                             ...styles.listItem,
                             backgroundColor: currentProject?.id === project.id ? '#e6f7ff' : 'transparent',
-                            color: currentProject?.id === project.id ? '#0079bf' : '#172b4d'
+                            color: currentProject?.id === project.id ? '#0079bf' : 'var(--color-text)'
                         }}
                         onClick={() => onSelectProject(project)}
                     >
@@ -128,8 +128,8 @@ const ProjectSidebar = ({ projects, currentProject, onSelectProject, onAddProjec
 const styles = {
     sidebar: {
         width: '250px',
-        backgroundColor: '#f4f5f7',
-        borderRight: '1px solid #dfe1e6',
+        backgroundColor: 'var(--color-bg)',
+        borderRight: '1px solid var(--color-text-secondary)', // or similar divider color
         padding: '20px',
         display: 'flex',
         flexDirection: 'column',
@@ -139,7 +139,7 @@ const styles = {
     header: {
         fontSize: '1.2rem',
         marginBottom: '20px',
-        color: '#172b4d'
+        color: 'var(--color-text)'
     },
     list: {
         listStyle: 'none',
@@ -209,7 +209,7 @@ const styles = {
         border: 'none',
         borderRadius: '6px',
         cursor: 'pointer',
-        color: '#172b4d',
+        color: 'var(--color-text)',
         fontWeight: '600',
         display: 'flex',
         justifyContent: 'center',

@@ -62,7 +62,7 @@ const styles = {
         zIndex: 1000
     },
     modal: {
-        backgroundColor: 'white',
+        backgroundColor: 'var(--color-card-bg)',
         padding: '24px',
         borderRadius: '8px',
         width: '90%',
@@ -76,13 +76,15 @@ const styles = {
         display: 'block',
         marginBottom: '8px',
         fontWeight: '500',
-        color: '#333'
+        color: 'var(--color-text)'
     },
     input: {
         width: '100%',
         padding: '8px 12px',
         borderRadius: '4px',
-        border: '1px solid #ccc',
+        border: '1px solid var(--color-text-secondary)',
+        backgroundColor: 'var(--color-bg)', // Slight contrast for input
+        color: 'var(--color-text)',
         fontSize: '1rem'
     },
     actions: {
@@ -93,10 +95,9 @@ const styles = {
     },
     btnCancel: {
         padding: '8px 16px',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        background: 'white',
-        color: '#333',
+        background: 'transparent',
+        color: 'var(--color-text)',
+        border: '1px solid var(--color-text-secondary)',
         cursor: 'pointer'
     },
     btnSave: {

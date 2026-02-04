@@ -71,7 +71,7 @@ const styles = {
         zIndex: 1000
     },
     modal: {
-        backgroundColor: 'white',
+        backgroundColor: 'var(--color-card-bg)',
         borderRadius: '8px',
         width: '500px',
         maxWidth: '90%',
@@ -82,7 +82,7 @@ const styles = {
     },
     header: {
         padding: '16px 20px',
-        borderBottom: '1px solid #ebecf0',
+        borderBottom: '1px solid var(--color-border)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -92,7 +92,7 @@ const styles = {
         border: 'none',
         fontSize: '1.2rem',
         cursor: 'pointer',
-        color: '#6b778c'
+        color: 'var(--color-text-secondary)'
     },
     content: {
         padding: '20px',
@@ -105,7 +105,7 @@ const styles = {
     },
     listItem: {
         padding: '12px',
-        borderBottom: '1px solid #ebecf0',
+        borderBottom: '1px solid var(--color-border)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

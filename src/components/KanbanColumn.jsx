@@ -17,7 +17,7 @@ const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask, onA
             }}
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: '#333' }}>{column.title}</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-text)' }}>{column.title}</h3>
                 <span style={{
                     backgroundColor: 'rgba(0,0,0,0.1)',
                     borderRadius: '12px',

@@ -6,7 +6,7 @@ import ExportImportControls from './components/ExportImportControls';
 import ArchivedTasksModal from './components/ArchivedTasksModal';
 import ProjectSidebar from './components/ProjectSidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxArchive } from '@fortawesome/free-solid-svg-icons';
+import { faBoxArchive, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { getTasks, addTask, updateTask, deleteTask, clearAllTasks, bulkAddTasks, getProjects, addProject, deleteProject, updateProject } from './utils/db';
 
 const COLUMNS = [
@@ -22,6 +22,16 @@ function App() {
   const [currentProject, setCurrentProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     loadProjects();
@@ -29,6 +39,7 @@ function App() {
 
   useEffect(() => {
     if (currentProject) {
+      localStorage.setItem('currentProjectId', currentProject.id);
       loadTasks();
     } else {
       setTasks([]);
@@ -49,7 +60,9 @@ function App() {
       // But getProjects calls initDB which runs migration. 
       // So storedProjects should at least have 'default' if it's new DB or upgraded.
       if (storedProjects.length > 0 && !currentProject) {
-        setCurrentProject(storedProjects[0]);
+        const savedProjectId = localStorage.getItem('currentProjectId');
+        const savedProject = savedProjectId ? storedProjects.find(p => p.id === savedProjectId) : null;
+        setCurrentProject(savedProject || storedProjects[0]);
       }
     } catch (error) {
       console.error("Failed to load projects", error);
@@ -252,7 +265,16 @@ function App() {
             {currentProject && <span style={{ fontSize: '0.9rem', color: '#666' }}>Managing tasks for {currentProject.name}</span>}
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="theme-switch-wrapper">
+              <label className="theme-switch" htmlFor="checkbox">
+                <input type="checkbox" id="checkbox" checked={theme === 'dark'} onChange={toggleTheme} />
+                <div className="slider round">
+                  <FontAwesomeIcon icon={faSun} className="icon-sun" />
+                  <FontAwesomeIcon icon={faMoon} className="icon-moon" />
+                </div>
+              </label>
+            </div>
             <button
               onClick={() => setIsModalOpen(true)}
               disabled={!currentProject}

@@ -69,11 +69,11 @@ const TaskCard = ({ task, onMove, onDelete, onEdit, onArchive }) => {
                     <button onClick={handleSave} style={{ ...styles.btn, color: 'green' }} title="Save">
                         <FontAwesomeIcon icon={faSave} />
                     </button>
-                    <button onClick={cancelEdit} style={{ ...styles.btn, color: 'red' }} title="Cancel">
+                    <button onClick={cancelEdit} style={{ ...styles.btn, color: 'var(--color-text-secondary)', opacity: 0.8 }} title="Cancel">
                         <FontAwesomeIcon icon={faTimes} />
                     </button>
                 </div>
-            </div>
+            </div >
         );
     }
 
@@ -81,8 +81,8 @@ const TaskCard = ({ task, onMove, onDelete, onEdit, onArchive }) => {
 
     return (
         <div className="task-card" style={styles.card}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#172b4d' }}>{task.title}</h4>
-            <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: '#5e6c84', whiteSpace: 'pre-wrap' }}>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: 'var(--color-text)' }}>{task.title}</h4>
+            <p style={{ margin: '0 0 12px 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap' }}>
                 {task.description}
             </p>
 
@@ -175,7 +175,7 @@ const styles = {
         padding: '12px',
         boxShadow: 'var(--shadow-card)',
         transition: 'transform 0.2s, box-shadow 0.2s',
-        border: '1px solid rgba(0,0,0,0.05)',
+        border: '1px solid var(--color-border)',
         display: 'flex',
         flexDirection: 'column'
     },
@@ -185,7 +185,7 @@ const styles = {
         alignItems: 'center',
         marginTop: '8px',
         paddingTop: '8px',
-        borderTop: '1px solid #f0f0f0'
+        borderTop: '1px solid var(--color-border)'
     },
     btn: {
         padding: '4px 8px',
@@ -193,7 +193,7 @@ const styles = {
         border: 'none',
         background: 'transparent',
         cursor: 'pointer',
-        color: '#6b778c',
+        color: 'var(--color-text-secondary)',
         transition: 'background 0.2s, color 0.2s'
     },
     input: {
@@ -201,29 +201,33 @@ const styles = {
         padding: '6px',
         marginBottom: '8px',
         borderRadius: '4px',
-        border: '1px solid #dfe1e6',
-        fontSize: '0.9rem'
+        borderRadius: '4px',
+        border: '1px solid var(--color-border)',
+        fontSize: '0.9rem',
+        backgroundColor: 'var(--color-bg)',
+        color: 'var(--color-text)'
     },
     commentsSection: {
         marginTop: '8px',
         marginBottom: '8px',
-        backgroundColor: '#f9f9f9',
+        marginBottom: '8px',
+        backgroundColor: 'var(--color-bg)',
         borderRadius: '4px',
         padding: '8px',
         fontSize: '0.85rem'
     },
     commentItem: {
         marginBottom: '8px',
-        borderBottom: '1px solid #eee',
+        borderBottom: '1px solid var(--color-border)',
         paddingBottom: '4px'
     },
     commentMeta: {
         fontSize: '0.75rem',
-        color: '#888',
+        color: 'var(--color-text-secondary)',
         marginBottom: '2px'
     },
     commentText: {
-        color: '#333',
+        color: 'var(--color-text)',
         whiteSpace: 'pre-wrap'
     },
     addCommentRow: {
@@ -235,8 +239,10 @@ const styles = {
         flex: 1,
         padding: '4px 8px',
         borderRadius: '4px',
-        border: '1px solid #ddd',
-        fontSize: '0.85rem'
+        border: '1px solid var(--color-border)',
+        fontSize: '0.85rem',
+        backgroundColor: 'var(--color-card-bg)',
+        color: 'var(--color-text)'
     },
     sendBtn: {
         background: '#0079bf',
