@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPen, faArrowRight, faArrowLeft, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPen, faArrowRight, faArrowLeft, faSave, faTimes, faCheck, faArchive } from '@fortawesome/free-solid-svg-icons';
 
 const STATUS_ORDER = ['todo', 'inprogress', 'pending', 'done'];
 
-const TaskCard = ({ task, onMove, onDelete, onEdit }) => {
+const TaskCard = ({ task, onMove, onDelete, onEdit, onArchive }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(task.title);
     const [editedDesc, setEditedDesc] = useState(task.description);
@@ -66,6 +66,24 @@ const TaskCard = ({ task, onMove, onDelete, onEdit }) => {
                     <button onClick={() => onDelete(task.id)} style={{ ...styles.btn, color: '#dc3545' }} title="Delete">
                         <FontAwesomeIcon icon={faTrash} size="sm" />
                     </button>
+                    {['inprogress', 'pending'].includes(task.status) && (
+                        <button
+                            onClick={() => onMove(task, 'done')}
+                            style={{ ...styles.btn, color: '#6b778c' }}
+                            title="Mark as Done"
+                        >
+                            <FontAwesomeIcon icon={faCheck} size="sm" />
+                        </button>
+                    )}
+                    {task.status === 'done' && (
+                        <button
+                            onClick={() => onArchive(task)}
+                            style={{ ...styles.btn, color: '#6b778c' }}
+                            title="Archive Task"
+                        >
+                            <FontAwesomeIcon icon={faArchive} size="sm" />
+                        </button>
+                    )}
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px' }}>

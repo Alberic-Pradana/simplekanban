@@ -1,6 +1,6 @@
 import TaskCard from './TaskCard';
 
-const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask }) => {
+const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask, onArchiveTask }) => {
     return (
         <div
             className="kanban-column"
@@ -37,6 +37,7 @@ const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask }) =
                         onMove={onMoveTask}
                         onDelete={onDeleteTask}
                         onEdit={onEditTask}
+                        onArchive={onArchiveTask}
                     />
                 ))}
                 {tasks.length === 0 && (
