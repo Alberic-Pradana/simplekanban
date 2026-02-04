@@ -25,6 +25,11 @@ const ArchivedTasksModal = ({ isOpen, onClose, archivedTasks, onRestore, onDelet
                                     <div>
                                         <strong>{task.title}</strong>
                                         <p style={{ fontSize: '0.85rem', color: '#6b778c', margin: '4px 0 0 0' }}>{task.description}</p>
+                                        {task.archivedDate && (
+                                            <p style={{ fontSize: '0.75rem', color: '#888', margin: '4px 0 0 0' }}>
+                                                Archived on: {task.archivedDate}
+                                            </p>
+                                        )}
                                     </div>
                                     <div style={styles.actions}>
                                         <button

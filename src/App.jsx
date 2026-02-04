@@ -110,7 +110,11 @@ function App() {
 
   const handleArchiveTask = async (task) => {
     try {
-      const updatedTask = { ...task, isArchived: true };
+      const updatedTask = {
+        ...task,
+        isArchived: true,
+        archivedDate: new Date().toISOString().split('T')[0] // Save date only YYYY-MM-DD
+      };
       await updateTask(updatedTask);
       setTasks(prev => prev.map(t => t.id === task.id ? updatedTask : t));
     } catch (error) {
@@ -120,7 +124,10 @@ function App() {
 
   const handleUnarchiveTask = async (task) => {
     try {
-      const updatedTask = { ...task, isArchived: false };
+      const updatedTask = { ...task, isArchived: false }; // Keep archivedDate or remove? Usually remove if unarchived.
+      // Let's remove archivedDate when restoring
+      delete updatedTask.archivedDate;
+
       await updateTask(updatedTask);
       setTasks(prev => prev.map(t => t.id === task.id ? updatedTask : t));
     } catch (error) {
@@ -168,11 +175,26 @@ function App() {
               fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              position: 'relative'
             }}
             title="View Archived Tasks"
           >
             <FontAwesomeIcon icon={faBoxArchive} />
+            {archivedTasks.length > 0 && (
+              <span style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                fontSize: '0.7rem',
+                padding: '2px 6px',
+                borderRadius: '10px',
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px'
+              }}>
+                {archivedTasks.length}
+              </span>
+            )}
           </button>
         </div>
       </header>
