@@ -4,9 +4,10 @@ import KanbanColumn from './components/KanbanColumn';
 import AddTaskForm from './components/AddTaskForm';
 import ExportImportControls from './components/ExportImportControls';
 import ArchivedTasksModal from './components/ArchivedTasksModal';
+import ProjectSidebar from './components/ProjectSidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBoxArchive } from '@fortawesome/free-solid-svg-icons';
-import { getTasks, addTask, updateTask, deleteTask, clearAllTasks, bulkAddTasks } from './utils/db';
+import { getTasks, addTask, updateTask, deleteTask, clearAllTasks, bulkAddTasks, getProjects, addProject, deleteProject, updateProject } from './utils/db';
 
 const COLUMNS = [
   { id: 'todo', title: 'Tugas Tersedia', color: 'var(--color-todo)' },
@@ -17,30 +18,102 @@ const COLUMNS = [
 
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [currentProject, setCurrentProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
   useEffect(() => {
-    loadTasks();
+    loadProjects();
   }, []);
+
+  useEffect(() => {
+    if (currentProject) {
+      loadTasks();
+    } else {
+      setTasks([]);
+    }
+  }, [currentProject]);
 
   const activeTasks = tasks.filter(t => !t.isArchived);
   const archivedTasks = tasks.filter(t => t.isArchived);
 
-  const loadTasks = async () => {
+  const loadProjects = async () => {
     try {
-      const storedTasks = await getTasks();
+      const storedProjects = await getProjects();
+      setProjects(storedProjects);
+
+      // If no project selected yet, select the first one (usually 'default')
+      // If storedProjects is empty, DB migration failed or hasn't run yet? 
+      // Actually DB migration runs on any DB open. 
+      // But getProjects calls initDB which runs migration. 
+      // So storedProjects should at least have 'default' if it's new DB or upgraded.
+      if (storedProjects.length > 0 && !currentProject) {
+        setCurrentProject(storedProjects[0]);
+      }
+    } catch (error) {
+      console.error("Failed to load projects", error);
+    }
+  };
+
+  const loadTasks = async () => {
+    if (!currentProject) return;
+    try {
+      const storedTasks = await getTasks(currentProject.id);
       setTasks(storedTasks);
     } catch (error) {
       console.error(error);
     }
   };
 
+  const handleAddProject = async (projectData) => {
+    try {
+      const newProject = {
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        ...projectData
+      };
+      await addProject(newProject);
+      setProjects(prev => [...prev, newProject]);
+      setCurrentProject(newProject); // Switch to new project
+    } catch (error) {
+      console.error("Failed to add project", error);
+    }
+  };
+
+  const handleEditProject = async (updatedProject) => {
+    try {
+      await updateProject(updatedProject);
+      setProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
+      if (currentProject && currentProject.id === updatedProject.id) {
+        setCurrentProject(updatedProject);
+      }
+    } catch (error) {
+      console.error("Failed to update project", error);
+    }
+  };
+
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm("Are you sure you want to delete this project and ALL its tasks?")) return;
+    try {
+      await deleteProject(projectId);
+      const remainingProjects = projects.filter(p => p.id !== projectId);
+      setProjects(remainingProjects);
+      if (currentProject && currentProject.id === projectId) {
+        setCurrentProject(remainingProjects.length > 0 ? remainingProjects[0] : null);
+      }
+    } catch (error) {
+      console.error("Failed to delete project", error);
+    }
+  };
+
   const handleAddTask = async (newTask) => {
+    if (!currentProject) return;
     try {
       // Ensure basic fields
       const task = {
         id: Date.now().toString(),
+        projectId: currentProject.id, // Link to project
         status: 'todo', // Default status
         ...newTask
       };
@@ -51,6 +124,13 @@ function App() {
       console.error("Failed to add task", error);
     }
   };
+
+  // ... (Other handlers like move, delete, edit, import/export remain largely same, 
+  // but export/import might need to consider project context if we want per-project export)
+
+  // Update: Export only current project tasks or all? 
+  // Let's stick to current behavior: export what is in `tasks` state (which is now filtered by project)
+  // Logic works: `tasks` state contains only current project tasks.
 
   const handleMoveTask = async (task, newStatus) => {
     if (task.status === newStatus) return;
@@ -88,17 +168,27 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     const date = new Date().toISOString().split('T')[0];
+    const projectName = currentProject ? currentProject.name.replace(/\s+/g, '-') : 'kanban';
     link.href = url;
-    link.download = `kanban-backup-${date}.json`;
+    link.download = `${projectName}-backup-${date}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   const handleImport = async (importedTasks) => {
+    if (!currentProject) return;
     try {
       if (!Array.isArray(importedTasks)) throw new Error("Invalid format");
-      await clearAllTasks();
-      await bulkAddTasks(importedTasks);
+      // Careful: clearAllTasks takes a projectId now to clear safely
+      await clearAllTasks(currentProject.id);
+
+      // Ensure imported tasks have the correct projectId
+      const tasksWithProject = importedTasks.map(t => ({
+        ...t,
+        projectId: currentProject.id
+      }));
+
+      await bulkAddTasks(tasksWithProject);
       // Reload from DB to be sure
       loadTasks();
       alert("Tasks imported successfully!");
@@ -124,8 +214,7 @@ function App() {
 
   const handleUnarchiveTask = async (task) => {
     try {
-      const updatedTask = { ...task, isArchived: false }; // Keep archivedDate or remove? Usually remove if unarchived.
-      // Let's remove archivedDate when restoring
+      const updatedTask = { ...task, isArchived: false };
       delete updatedTask.archivedDate;
 
       await updateTask(updatedTask);
@@ -146,87 +235,111 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ padding: '20px', minHeight: '100vh' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>Simple Kanban</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              backgroundColor: '#0079bf',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '4px',
-              fontWeight: 'bold'
-            }}
-          >
-            + Add Task
-          </button>
-          <ExportImportControls onExport={handleExport} onImport={handleImport} />
-          <button
-            onClick={() => setIsArchiveModalOpen(true)}
-            style={{
-              backgroundColor: '#6c757d',
-              color: 'white',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              position: 'relative'
-            }}
-            title="View Archived Tasks"
-          >
-            <FontAwesomeIcon icon={faBoxArchive} />
-            {archivedTasks.length > 0 && (
-              <span style={{
-                backgroundColor: '#dc3545',
-                color: 'white',
-                fontSize: '0.7rem',
-                padding: '2px 6px',
-                borderRadius: '10px',
-                position: 'absolute',
-                top: '-5px',
-                right: '-5px'
-              }}>
-                {archivedTasks.length}
-              </span>
-            )}
-          </button>
-        </div>
-      </header>
-
-      <KanbanBoard>
-        {COLUMNS.map(col => (
-          <KanbanColumn
-            key={col.id}
-            column={col}
-            tasks={activeTasks.filter(t => t.status === col.id)}
-            onMoveTask={handleMoveTask}
-            onDeleteTask={handleDeleteTask}
-            onEditTask={handleEditTask}
-            onArchiveTask={handleArchiveTask}
-          />
-        ))}
-      </KanbanBoard>
-
-      {isModalOpen && (
-        <AddTaskForm
-          onSave={handleAddTask}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-
-      <ArchivedTasksModal
-        isOpen={isArchiveModalOpen}
-        onClose={() => setIsArchiveModalOpen(false)}
-        archivedTasks={archivedTasks}
-        onRestore={handleUnarchiveTask}
-        onDeletePermanently={handleDeletePermanently}
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <ProjectSidebar
+        projects={projects}
+        currentProject={currentProject}
+        onSelectProject={setCurrentProject}
+        onAddProject={handleAddProject}
+        onDeleteProject={handleDeleteProject}
+        onEditProject={handleEditProject}
       />
+
+      <div className="app-main" style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div>
+            <h1 style={{ margin: 0 }}>{currentProject ? currentProject.name : 'Simple Kanban'}</h1>
+            {currentProject && <span style={{ fontSize: '0.9rem', color: '#666' }}>Managing tasks for {currentProject.name}</span>}
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              disabled={!currentProject}
+              style={{
+                backgroundColor: currentProject ? '#0079bf' : '#ccc',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                cursor: currentProject ? 'pointer' : 'not-allowed'
+              }}
+            >
+              + Add Task
+            </button>
+            <ExportImportControls onExport={handleExport} onImport={handleImport} />
+            <button
+              onClick={() => setIsArchiveModalOpen(true)}
+              style={{
+                backgroundColor: '#6c757d',
+                color: 'white',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                position: 'relative'
+              }}
+              title="View Archived Tasks"
+            >
+              <FontAwesomeIcon icon={faBoxArchive} />
+              {archivedTasks.length > 0 && (
+                <span style={{
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px'
+                }}>
+                  {archivedTasks.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </header>
+
+        {currentProject ? (
+          <KanbanBoard>
+            {COLUMNS.map(col => (
+              <KanbanColumn
+                key={col.id}
+                column={col}
+                tasks={activeTasks.filter(t => t.status === col.id)}
+                onMoveTask={handleMoveTask}
+                onDeleteTask={handleDeleteTask}
+                onEditTask={handleEditTask}
+                onArchiveTask={handleArchiveTask}
+              />
+            ))}
+          </KanbanBoard>
+        ) : (
+          <div style={{ textAlign: 'center', marginTop: '50px', color: '#666' }}>
+            <h2>Welcome to Simple Kanban!</h2>
+            <p>Please select or create a project from the sidebar to get started.</p>
+          </div>
+        )}
+
+        {isModalOpen && (
+          <AddTaskForm
+            onSave={handleAddTask}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
+
+        <ArchivedTasksModal
+          isOpen={isArchiveModalOpen}
+          onClose={() => setIsArchiveModalOpen(false)}
+          archivedTasks={archivedTasks}
+          onRestore={handleUnarchiveTask}
+          onDeletePermanently={handleDeletePermanently}
+        />
+      </div>
     </div>
   );
 }
