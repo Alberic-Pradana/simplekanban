@@ -6,8 +6,7 @@ const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask }) =
             className="kanban-column"
             style={{
                 backgroundColor: column.color,
-                minWidth: '300px',
-                maxWidth: '300px',
+                width: '25%',
                 borderRadius: '8px',
                 padding: '16px',
                 display: 'flex',
