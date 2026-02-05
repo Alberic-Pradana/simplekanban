@@ -262,24 +262,15 @@ function App() {
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
             <h1 style={{ margin: 0 }}>{currentProject ? currentProject.name : 'Simple Kanban'}</h1>
-            {currentProject && <span style={{ fontSize: '0.9rem', color: '#666' }}>Managing tasks for {currentProject.name}</span>}
+            {currentProject && <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Managing tasks for {currentProject.name}</span>}
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <div className="theme-switch-wrapper">
-              <label className="theme-switch" htmlFor="checkbox">
-                <input type="checkbox" id="checkbox" checked={theme === 'dark'} onChange={toggleTheme} />
-                <div className="slider round">
-                  <FontAwesomeIcon icon={faSun} className="icon-sun" />
-                  <FontAwesomeIcon icon={faMoon} className="icon-moon" />
-                </div>
-              </label>
-            </div>
             <button
               onClick={() => setIsModalOpen(true)}
               disabled={!currentProject}
               style={{
-                backgroundColor: currentProject ? '#0079bf' : '#ccc',
+                backgroundColor: currentProject ? 'var(--color-primary-static)' : '#ccc',
                 color: 'white',
                 padding: '8px 16px',
                 borderRadius: '4px',
@@ -293,7 +284,7 @@ function App() {
             <button
               onClick={() => setIsArchiveModalOpen(true)}
               style={{
-                backgroundColor: '#6c757d',
+                backgroundColor: 'var(--color-btn-secondary)',
                 color: 'white',
                 padding: '8px 12px',
                 borderRadius: '4px',
@@ -310,7 +301,7 @@ function App() {
               <FontAwesomeIcon icon={faBoxArchive} />
               {archivedTasks.length > 0 && (
                 <span style={{
-                  backgroundColor: '#dc3545',
+                  backgroundColor: 'var(--color-danger)',
                   color: 'white',
                   fontSize: '0.7rem',
                   padding: '2px 6px',
@@ -361,6 +352,16 @@ function App() {
           onRestore={handleUnarchiveTask}
           onDeletePermanently={handleDeletePermanently}
         />
+      </div>
+
+      <div className="theme-switch-wrapper">
+        <label className="theme-switch" htmlFor="checkbox">
+          <input type="checkbox" id="checkbox" checked={theme === 'dark'} onChange={toggleTheme} />
+          <div className="slider round">
+            <FontAwesomeIcon icon={faSun} className="icon-sun" />
+            <FontAwesomeIcon icon={faMoon} className="icon-moon" />
+          </div>
+        </label>
       </div>
     </div>
   );

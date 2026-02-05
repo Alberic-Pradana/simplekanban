@@ -42,8 +42,8 @@ const ProjectSidebar = ({ projects, currentProject, onSelectProject, onAddProjec
                         key={project.id}
                         style={{
                             ...styles.listItem,
-                            backgroundColor: currentProject?.id === project.id ? '#e6f7ff' : 'transparent',
-                            color: currentProject?.id === project.id ? '#0079bf' : 'var(--color-text)'
+                            backgroundColor: currentProject?.id === project.id ? 'var(--color-todo)' : 'transparent',
+                            color: 'var(--color-text)'
                         }}
                         onClick={() => onSelectProject(project)}
                     >
@@ -86,7 +86,7 @@ const ProjectSidebar = ({ projects, currentProject, onSelectProject, onAddProjec
                                     {projects.length > 1 && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onDeleteProject(project.id); }}
-                                            style={{ ...styles.actionBtn, color: '#dc3545' }}
+                                            style={{ ...styles.actionBtn, color: 'var(--color-danger)' }}
                                             title="Delete Project"
                                         >
                                             <FontAwesomeIcon icon={faTrash} size="xs" />
@@ -172,7 +172,7 @@ const styles = {
     deleteBtn: {
         background: 'none',
         border: 'none',
-        color: '#dc3545',
+        color: 'var(--color-danger)',
         cursor: 'pointer',
         padding: '4px',
         fontSize: '0.8rem',
@@ -181,7 +181,7 @@ const styles = {
     actionBtn: {
         background: 'none',
         border: 'none',
-        color: '#6b778c',
+        color: 'var(--color-text-secondary)',
         cursor: 'pointer',
         padding: '4px',
         fontSize: '0.8rem',
@@ -198,14 +198,14 @@ const styles = {
         flex: 1,
         padding: '4px',
         borderRadius: '4px',
-        border: '1px solid #0079bf',
+        border: '1px solid var(--color-todo)',
         fontSize: '0.9rem',
         minWidth: 0
     },
     addBtn: {
         width: '100%',
         padding: '10px',
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'var(--color-todo)',
         border: 'none',
         borderRadius: '6px',
         cursor: 'pointer',
@@ -224,12 +224,12 @@ const styles = {
     input: {
         padding: '8px',
         borderRadius: '4px',
-        border: '1px solid #dfe1e6'
+        border: '1px solid var(--color-border)'
     },
     confirmBtn: {
         flex: 1,
         padding: '6px',
-        backgroundColor: '#0079bf',
+        backgroundColor: 'var(--color-todo)',
         color: 'white',
         border: 'none',
         borderRadius: '4px',
@@ -239,7 +239,7 @@ const styles = {
         flex: 1,
         padding: '6px',
         backgroundColor: 'transparent',
-        color: '#6b778c',
+        color: 'var(--color-text-secondary)',
         border: 'none',
         borderRadius: '4px',
         cursor: 'pointer'
