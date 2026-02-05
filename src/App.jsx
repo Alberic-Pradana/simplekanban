@@ -260,9 +260,11 @@ function App() {
 
       <div className="app-main" style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div>
-            <h1 style={{ margin: 0 }}>{currentProject ? currentProject.name : 'Simple Kanban'}</h1>
-            {currentProject && <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Managing tasks for {currentProject.name}</span>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div>
+              <h1 style={{ margin: 0 }}>{currentProject ? currentProject.name : 'Simple Kanban'}</h1>
+              {currentProject && <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Managing tasks for {currentProject.name}</span>}
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
