@@ -1,0 +1,408 @@
+/* =========================================
+   1. RESET & VARIABLES
+   ========================================= */
+:root {
+  --sidebar-width: 260px;
+  --status-sidebar-width: 200px;
+  --header-height: 60px;
+  --mobile-header-height: 50px;
+  --transition-speed: 0.3s;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   2. MAIN LAYOUT GRID
+   ========================================= */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.content-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: row;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+/* =========================================
+   3. PROJECT SIDEBAR
+   ========================================= */
+.project-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  transition: transform var(--transition-speed) ease;
+  z-index: 100;
+}
+
+.project-sidebar-header {
+  padding: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+}
+
+.project-item {
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s;
+  color: var(--color-text);
+}
+
+.project-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.project-item.active {
+  background-color: var(--color-todo);
+  font-weight: 500;
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* =========================================
+   4. STATUS SIDEBAR
+   ========================================= */
+.status-sidebar {
+  width: var(--status-sidebar-width);
+  background-color: var(--color-card-bg);
+  border-right: 1px solid var(--color-border);
+  display: none; /* Hidden on Desktop */
+  flex-direction: column;
+  flex-shrink: 0;
+  padding-top: 20px;
+}
+
+.status-list {
+  list-style: none;
+  padding: 0 10px;
+  margin: 0;
+}
+
+.status-item {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+}
+
+.status-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--color-text);
+}
+
+.status-item.active {
+  background-color: var(--color-primary-static);
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+/* =========================================
+   5. KANBAN BOARD AREA
+   ========================================= */
+.kanban-wrapper {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  height: calc(100vh - var(--header-height)); 
+}
+
+.kanban-column {
+  min-width: 300px;
+  width: 25%;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  border: 1px solid var(--color-border);
+  padding: 10px;
+}
+
+.kanban-column.single-view {
+  width: 100%;
+  background-color: transparent !important;
+  border: none;
+}
+
+/* =========================================
+   6. HEADER & MOBILE CONTROLS
+   ========================================= */
+.app-header {
+  height: var(--header-height);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 1 1 auto;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-add-task {
+  background-color: var(--color-primary-static);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-add-task:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-header-archive {
+  background-color: var(--color-btn-secondary);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+.archive-badge {
+    background-color: var(--color-danger);
+    color: white;
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 8px;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+}
+
+/* =========================================
+   7. MOBILE RESPONSIVENESS
+   ========================================= */
+
+
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  
+  /* Override Dark Mode Toggle Position */
+  .theme-switch-wrapper {
+      right: 75px !important;
+  }
+  
+  .app-container {
+      flex-direction: column;
+  }
+
+  .content-body {
+      flex-direction: column;
+  }
+
+  .project-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 80%;
+      max-width: 300px;
+      transform: translateX(-100%);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+  }
+  
+  .project-sidebar.open {
+      transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+  }
+  
+  .sidebar-overlay.open {
+      display: block;
+  }
+
+  .sidebar-close-btn {
+      display: block;
+  }
+  
+  .mobile-menu-btn {
+      color: var(--color-text);
+      display: block;
+  }
+
+  .app-header {
+      height: auto;
+      min-height: var(--mobile-header-height);
+      flex-wrap: wrap;
+      padding: 10px 10px;
+      gap: 8px;
+  }
+  
+  .header-left {
+      flex: 1 1 auto;
+  }
+
+  .header-right {
+      margin-left: auto;
+      justify-content: flex-end;
+  }
+
+  .btn-header-archive {
+      display: flex !important;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      width: 40px;
+      height: 28px;
+      border-radius: 20%;
+      padding: 0;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Status Sidebar -> Tabs on Mobile */
+  .status-sidebar {
+      display: flex;
+      width: 100%;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+      padding: 0;
+      overflow-x: hidden;
+      background-color: var(--color-bg);
+  }
+
+  .main-content {
+      flex-direction: column;
+      overflow: hidden;
+  }
+
+  .status-list {
+      display: flex;
+      flex-direction: row;
+      padding: 10px;
+      gap: 5px;
+      width: 100%;
+      justify-content: space-between;
+  }
+
+  .status-item-all,
+  .status-item-archive {
+      display: none !important;
+  }
+
+  .status-item {
+      margin-bottom: 0;
+      padding: 8px 4px;
+      font-size: 0.85rem;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      background: none !important;
+  }
+  
+  .status-item.active {
+      border-bottom-color: var(--color-primary-static);
+      color: var(--color-primary-static);
+      box-shadow: none;
+  }
+
+  .kanban-wrapper {
+      padding: 10px;
+      height: auto;
+      flex: 1;
+      align-items: stretch;
+      flex-direction: column;
+      overflow-y: auto;
+  }
+
+  .kanban-column {
+      min-width: 250px;
+      width: 40%;
+      margin-bottom: 20px;
+      height: fit-content;
+      flex: 0 0 auto;
+  }
+}

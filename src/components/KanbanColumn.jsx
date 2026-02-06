@@ -1,19 +1,12 @@
 import TaskCard from './TaskCard';
 
-const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask, onArchiveTask }) => {
+const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask, onArchiveTask, isSingleView }) => {
     return (
         <div
-            className="kanban-column"
+            className={`kanban-column ${isSingleView ? 'single-view' : ''}`}
             style={{
                 backgroundColor: column.color,
-                width: '25%',
-                borderRadius: '8px',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                height: 'fit-content' // allow it to grow but not stretch unnecessarily
+                /* Width is handled by CSS class now */
             }}
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -42,11 +35,11 @@ const KanbanColumn = ({ column, tasks, onMoveTask, onDeleteTask, onEditTask, onA
                 ))}
                 {tasks.length === 0 && (
                     <div style={{
-                        color: '#888',
+                        color: 'var(--color-text-secondary)',
                         fontStyle: 'italic',
                         textAlign: 'center',
                         padding: '20px 0',
-                        border: '1px dashed rgba(0,0,0,0.1)',
+                        border: '1px dashed var(--color-border)',
                         borderRadius: '6px'
                     }}>
                         Tidak ada tugas

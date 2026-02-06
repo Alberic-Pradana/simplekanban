@@ -1,3 +1,4 @@
+// ... imports
 import { useState, useEffect } from 'react';
 import KanbanBoard from './components/KanbanBoard';
 import KanbanColumn from './components/KanbanColumn';
@@ -5,10 +6,12 @@ import AddTaskForm from './components/AddTaskForm';
 import ExportImportControls from './components/ExportImportControls';
 import ArchivedTasksModal from './components/ArchivedTasksModal';
 import ProjectSidebar from './components/ProjectSidebar';
+import StatusSidebar from './components/StatusSidebar'; // Import StatusSidebar
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxArchive, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faBoxArchive, faSun, faMoon, faBars } from '@fortawesome/free-solid-svg-icons'; // Added faBars
 import { getTasks, addTask, updateTask, deleteTask, clearAllTasks, bulkAddTasks, getProjects, addProject, deleteProject, updateProject } from './utils/db';
-
+import './styles/kanban.css';
+import './styles/layout.css';
 const COLUMNS = [
   { id: 'todo', title: 'Tugas Tersedia', color: 'var(--color-todo)' },
   { id: 'inprogress', title: 'Sedang Diproses', color: 'var(--color-inprogress)' },
@@ -23,6 +26,10 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  // New States for Layout & Filter
+  const [isProjectSidebarOpen, setIsProjectSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('all'); // 'all', 'todo', 'inprogress', 'pending', 'done', 'archive'
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -53,12 +60,6 @@ function App() {
     try {
       const storedProjects = await getProjects();
       setProjects(storedProjects);
-
-      // If no project selected yet, select the first one (usually 'default')
-      // If storedProjects is empty, DB migration failed or hasn't run yet? 
-      // Actually DB migration runs on any DB open. 
-      // But getProjects calls initDB which runs migration. 
-      // So storedProjects should at least have 'default' if it's new DB or upgraded.
       if (storedProjects.length > 0 && !currentProject) {
         const savedProjectId = localStorage.getItem('currentProjectId');
         const savedProject = savedProjectId ? storedProjects.find(p => p.id === savedProjectId) : null;
@@ -138,13 +139,7 @@ function App() {
     }
   };
 
-  // ... (Other handlers like move, delete, edit, import/export remain largely same, 
-  // but export/import might need to consider project context if we want per-project export)
-
-  // Update: Export only current project tasks or all? 
-  // Let's stick to current behavior: export what is in `tasks` state (which is now filtered by project)
-  // Logic works: `tasks` state contains only current project tasks.
-
+  // ... (rest of handlers: move, delete, edit, import/export, archive)
   const handleMoveTask = async (task, newStatus) => {
     if (task.status === newStatus) return;
     try {
@@ -248,7 +243,8 @@ function App() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div className="app-container">
+      {/* 1. Project Sidebar */}
       <ProjectSidebar
         projects={projects}
         currentProject={currentProject}
@@ -256,62 +252,46 @@ function App() {
         onAddProject={handleAddProject}
         onDeleteProject={handleDeleteProject}
         onEditProject={handleEditProject}
+        isOpen={isProjectSidebarOpen}
+        onClose={() => setIsProjectSidebarOpen(false)}
       />
 
-      <div className="app-main" style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="main-content">
+        {/* 2. Header */}
+        <header className="app-header">
+          <div className="header-left">
+            <button className="mobile-menu-btn" onClick={() => setIsProjectSidebarOpen(true)}>
+              <FontAwesomeIcon icon={faBars} />
+            </button>
             <div>
-              <h1 style={{ margin: 0 }}>{currentProject ? currentProject.name : 'Simple Kanban'}</h1>
-              {currentProject && <span style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>Managing tasks for {currentProject.name}</span>}
+              <h1
+                style={{ margin: 0, fontSize: '1.2rem', cursor: 'pointer', textTransform: 'capitalize', fontWeight: 'bold' }}
+                onClick={() => setViewMode('all')}
+                title="View All Tasks"
+              >
+                {currentProject ? currentProject.name : 'Simple Kanban'}
+              </h1>
+              {currentProject && <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', display: 'none' }}>Managing tasks for {currentProject.name}</span>}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="header-right">
             <button
               onClick={() => setIsModalOpen(true)}
+              className="btn-add-task"
               disabled={!currentProject}
-              style={{
-                backgroundColor: currentProject ? 'var(--color-primary-static)' : '#ccc',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                cursor: currentProject ? 'pointer' : 'not-allowed'
-              }}
             >
               + Add Task
             </button>
             <ExportImportControls onExport={handleExport} onImport={handleImport} />
             <button
               onClick={() => setIsArchiveModalOpen(true)}
-              style={{
-                backgroundColor: 'var(--color-btn-secondary)',
-                color: 'white',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                position: 'relative'
-              }}
+              className="btn-header-archive"
               title="View Archived Tasks"
             >
               <FontAwesomeIcon icon={faBoxArchive} />
               {archivedTasks.length > 0 && (
-                <span style={{
-                  backgroundColor: 'var(--color-danger)',
-                  color: 'white',
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  position: 'absolute',
-                  top: '-5px',
-                  right: '-5px'
-                }}>
+                <span className="archive-badge">
                   {archivedTasks.length}
                 </span>
               )}
@@ -319,26 +299,42 @@ function App() {
           </div>
         </header>
 
-        {currentProject ? (
-          <KanbanBoard>
-            {COLUMNS.map(col => (
-              <KanbanColumn
-                key={col.id}
-                column={col}
-                tasks={activeTasks.filter(t => t.status === col.id)}
-                onMoveTask={handleMoveTask}
-                onDeleteTask={handleDeleteTask}
-                onEditTask={handleEditTask}
-                onArchiveTask={handleArchiveTask}
-              />
-            ))}
-          </KanbanBoard>
-        ) : (
-          <div style={{ textAlign: 'center', marginTop: '50px', color: '#666' }}>
-            <h2>Welcome to Simple Kanban!</h2>
-            <p>Please select or create a project from the sidebar to get started.</p>
+        {/* Flex container for Status Sidebar + Board */}
+        <div className="content-body">
+
+          {/* 3. Status Sidebar (Sidebar on Desktop, Tabs on Mobile) */}
+          <StatusSidebar
+            currentView={viewMode}
+            onViewChange={setViewMode}
+          />
+
+          {/* 4. Kanban Board Area */}
+          <div className="kanban-wrapper">
+            {currentProject ? (
+              <KanbanBoard viewMode={viewMode}>
+                {COLUMNS
+                  .filter(col => viewMode === 'all' || viewMode === col.id)
+                  .map(col => (
+                    <KanbanColumn
+                      key={col.id}
+                      column={col}
+                      tasks={activeTasks.filter(t => t.status === col.id)}
+                      onMoveTask={handleMoveTask}
+                      onDeleteTask={handleDeleteTask}
+                      onEditTask={handleEditTask}
+                      onArchiveTask={handleArchiveTask}
+                      isSingleView={viewMode !== 'all'}
+                    />
+                  ))}
+              </KanbanBoard>
+            ) : (
+              <div style={{ textAlign: 'center', marginTop: '50px', color: '#666', width: '100%' }}>
+                <h2>Welcome!</h2>
+                <p>Select a project to start.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {isModalOpen && (
           <AddTaskForm
